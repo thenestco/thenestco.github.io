@@ -1,12 +1,12 @@
-const fs = require('fs');
-const sass = require('sass');
-const path = require('path');
-const minify = require('html-minifier').minify;
-const imagemin = require('imagemin');
-const imageminMozjpeg = require('imagemin-mozjpeg');
-const imageminPngquant = require('imagemin-pngquant');
-const imageminSvgo = require('imagemin-svgo');
-const { promisify } = require('util');
+import fs from 'fs';
+import * as sass from 'sass';
+import path from 'path';
+import { minify } from 'html-minifier';
+import imagemin from 'imagemin';
+import imageminMozjpeg from 'imagemin-mozjpeg';
+import imageminPngquant from 'imagemin-pngquant';
+import imageminSvgo from 'imagemin-svgo';
+import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
