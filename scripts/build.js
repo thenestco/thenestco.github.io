@@ -1,5 +1,11 @@
 const fs = require('fs');
+const sass = require('sass');
 const path = require('path');
+const minify = require('html-minifier').minify;
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
+const imageminSvgo = require('imagemin-svgo');
 const { promisify } = require('util');
 
 const readFile = promisify(fs.readFile);
@@ -13,6 +19,24 @@ const ensureDir = async (dir) => {
     await mkdir(dir, { recursive: true });
   }
 };
+
+// compile Sass
+async function compileSass() {
+  const result = sass.compile('./src/static/sass/main.scss');
+  await ensureDir('./dist/static/css');
+  fs.writeFileSync('./dist/static/css/main.css', result.css);
+}
+
+async function optimizeImages() {
+  await imagemin(['src/static/img/*.{jpg,png,svg}'], {
+    destination: 'dist/static/img',
+    plugins: [
+      imageminMozjpeg({quality: 75}),
+      imageminPngquant({quality: [0.6, 0.8]}),
+      imageminSvgo()
+    ]
+  });
+}
 
 // Process a page
 async function buildPage(pageName) {
@@ -34,10 +58,19 @@ async function buildPage(pageName) {
     .replace('<div id="content-container"></div>', pageContent)
     .replace('<div id="footer-container"></div>', footer);
   
+  finalHTML = minify(finalHTML, {
+    removeComments: true,
+    collapseWhitespace: true,
+    conservativeCollapse: true,
+    minifyJS: true,
+    minifyCSS: true
+  });
+
   // Write output
   await ensureDir('./dist');
   await writeFile(`./dist/${pageName}.html`, finalHTML);
 }
+
 
 // Copy static assets
 async function copyStatic() {
@@ -73,6 +106,9 @@ async function build() {
     await buildPage('about');
     // Add more pages as needed
     
+    await compileSass();
+    await optimizeImages();
+
     // Copy static assets
     await copyStatic();
     
