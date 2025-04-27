@@ -15,6 +15,10 @@ body {
   font-style: normal;
 }
 
+header {
+  padding: 1em 0;
+}
+
 header h1 a {
   color: #000;
   text-decoration: none;
