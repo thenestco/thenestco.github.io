@@ -79,28 +79,24 @@ header h2 a:visited {
   color: #000;
 }
 
-header ul {
+header nav {
   list-style-type: none;
   overflow: hidden;
   width: 50%;
   float: right;
 }
 
-header li {
+header nav a {
   float: right;
   font-size: x-large;
 }
 
-header li a {
+header nav a {
   display: block;
   color: black;
   text-align: right;
   padding: 14px 16px;
   text-decoration: none;
-}
-
-header li a:hover {
-  color: #111;
 }
 
 h3,
