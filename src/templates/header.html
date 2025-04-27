@@ -1,3 +1,16 @@
 <header>
-   <h1><a href="index.html">The Nest</a></h1>
+  <div class="dropdown" id="dropdown">
+    <button onclick="toggleDropdown()" class="dropbtn">
+      <h1>&#9660; <a href="index.html">the nest</a></h1>
+    </button>
+    <div class="dropdown-content">
+      <h2><a href="https://garmentsans.com">garment sans</a></h2>
+      <h2><a href="https://film.garmentsans.com">photography</a></h2>
+    </div>
+  </div>
+  <script>
+    function toggleDropdown() {
+      document.getElementById("dropdown").classList.toggle("show");
+    }
+  </script>
 </header>
