@@ -18,6 +18,11 @@ body {
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
+a {
+  color: #000;
+  text-decoration: none;
+}
+
 body {
   background-color: $background-color;
   display: flex;
