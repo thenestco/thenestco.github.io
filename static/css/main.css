@@ -191,6 +191,6 @@ main section.gallery {
 
 footer {
   clear: both;
-  padding-top: 25px;
+  padding: 1em 1em;
   bottom: 0;
 }
