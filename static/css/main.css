@@ -12,8 +12,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 98vh;
-  margin: 1em 1em;
-  padding: 10px 20px;
+  padding: 0.5em 0;
   font-family: apparat, sans-serif;
   font-style: normal;
 }
@@ -21,77 +20,138 @@ body {
 header {
   width: 250px;
   height: 100vh;
-  float: left;
-  display: inline;
+  display: flex; /* Change display to flex for header */
+  flex-direction: column; /* Stack header items vertically */
   margin-right: 10px;
   padding: 0;
   position: fixed;
   z-index: 1000;
-}
-header h1 a,
-header h2 a {
+  text-align: right;
   color: #000;
   text-decoration: none;
   font-variant: small-caps;
+  font-size: x-large;
 }
-header h1 a:visited,
-header h2 a:visited {
+header a:visited {
   color: #000;
 }
-header h1 a {
+header h1 {
   font-size: xx-large;
-}
-header h2 a {
-  font-size: x-large;
 }
 header nav {
   list-style-type: none;
-  overflow: hidden;
-  float: right;
+  gap: 10px; /* Add spacing between nav items */
 }
 header nav a {
   font-size: large;
   display: block;
-  color: black;
-  text-align: right;
   padding: 14px 16px;
   text-decoration: none;
 }
-
-.dropbtn {
-  float: right;
-  background-color: #c2d1c9;
-  border: none;
-  height: auto;
-  padding: 10px 16px;
-  cursor: pointer;
-}
-
-.dropdown {
+header .page-nav {
   position: relative;
-  margin-right: 1em;
+  margin-top: 100px;
 }
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #92ab9e;
-  min-width: 200px;
-  border-radius: 5px;
-  z-index: 1;
-  top: calc(100% + 50px); /* Position the dropdown content below the button */
-  right: 0; /* Align it with the left edge of the button */
+@media (max-width: 768px) {
+  header {
+    position: relative; /* Remove fixed positioning */
+    width: 100%; /* Make the header span the full width */
+    height: auto; /* Adjust height to fit content */
+    float: none; /* Remove float */
+    margin: 0; /* Remove margin */
+    padding: 10px 20px; /* Add padding for spacing */
+    z-index: 1000;
+    text-align: center; /* Center-align header text */
+  }
+  header .page-nav {
+    margin-top: 0;
+  }
+  header nav {
+    display: none; /* Initially hide the navigation menu */
+    flex-direction: column; /* Stack menu items vertically */
+    background-color: #c2d1c9;
+    position: absolute;
+    top: 100%; /* Position below the header */
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+  }
+  header nav a {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  header.open nav {
+    display: flex; /* Show the navigation menu when open */
+  }
 }
-.dropdown-content a {
+header .dropdown {
+  margin-right: 10px;
+}
+header .dropdown .dropdown-container {
+  display: flex;
+  align-items: right;
+  justify-content: right;
+  gap: 10px;
+}
+@media (max-width: 768px) {
+  header .dropdown .dropdown-container {
+    margin-right: 0;
+    align-items: center;
+    justify-content: center;
+  }
+}
+header .dropdown .dropdown-container .site-title {
   text-decoration: none;
-  display: block;
+  color: black;
+  font-variant: small-caps;
+  font-size: xx-large;
+  flex: 0;
 }
-.dropdown.show .dropdown-content {
-  display: block;
+header .dropdown .dropdown-container .dropbtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: x-large;
+}
+header .dropdown .site-nav {
+  position: absolute;
+  display: flex;
+  gap: 15px;
+  display: none;
+}
+header .dropdown.open .site-nav {
+  display: flex;
+}
+@media (max-width: 768px) {
+  header .dropdown.open .site-nav {
+    position: relative;
+  }
+}
+header .hamburger {
+  display: none;
+}
+@media (max-width: 768px) {
+  header .hamburger {
+    display: block; /* Show the hamburger icon */
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+  }
 }
 
 main {
+  padding: 1em 1em;
   margin-left: 250px;
   flex: 1;
+}
+@media (max-width: 768px) {
+  main {
+    margin-left: 0;
+  }
 }
 
 h3,
@@ -158,6 +218,6 @@ footer {
 .flex-container .flex-item {
   margin-right: 20px;
 }
-.flex-container .flex-item > img {
+.flex-container .flex-item img {
   width: 350px;
 }
