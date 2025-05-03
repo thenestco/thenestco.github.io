@@ -68,11 +68,20 @@ header {
       display: block;
       padding: 14px 16px;
       text-decoration: none;
+      font-size: x-large;
+      margin-top: 20px;
+      // line-height: 1.5;
     }
   }
   .page-nav {
-    position: relative;
-    margin-top: 100px;
+    // position: relative;
+    margin-top: 50px;
+    font-size: x-large;
+  }
+  .sub-page-nav a {
+    margin: 0px;
+    font-size: large;
+    line-height: 0.1;
   }
 
   // Mobile styles for the header
@@ -110,48 +119,17 @@ header {
     }
   }
 
-  .dropdown {
-    margin-right: $header-right-margin;
-    .dropdown-container {
-      display: flex;
-      align-items: right;
-      justify-content: right;
-      gap: 10px;
+  .site-title {
+    text-decoration: none;
+    color: black;
+    font-variant: small-caps;
+    font-size: xx-large;
+    flex: 0;
 
-      @media (max-width: 768px) {
-        margin-right: 0;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .site-title {
-        text-decoration: none;
-        color: black;
-        font-variant: small-caps;
-        font-size: xx-large;
-        flex: 0;
-      }
-
-      .dropbtn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: x-large;
-      }
-    }
-
-    .site-nav {
-      position: absolute;
-      display: flex;
-      gap: 15px;
-      display: none; // Hide the dropdown menu by default
-    }
-
-    &.open .site-nav {
-      display: flex; // Show the dropdown menu when the `open` class is added
-      @media (max-width: 768px) {
-        position: relative;
-      }
+    @media (max-width: 768px) {
+      margin-right: 0;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -167,12 +145,13 @@ header {
       position: absolute;
       top: 10px;
       right: 20px;
+      text-decoration: none;
     }
   }
 }
 
 main {
-  padding: 1em 1em;
+  padding: 0.25em 1em;
   margin-left: $header-width; // Use the same variable for margin-left
   flex: 1;
   @media (max-width: 768px) {
@@ -218,4 +197,25 @@ footer {
   clear: both;
   padding: 1em 1em;
   bottom: 0;
+}
+
+figcaption {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+figure img {
+  display: block;
+  margin-bottom: 0;
+}
+
+div.letter {
+  text-align: center;
+}
+
+div.letter img {
+  width: 100%;
+  max-width: 700px;
+  object-fit: cover;
+  height: auto;
 }
