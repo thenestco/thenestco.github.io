@@ -7,6 +7,7 @@ import imageminMozjpeg from "imagemin-mozjpeg";
 import imageminPngquant from "imagemin-pngquant";
 import imageminSvgo from "imagemin-svgo";
 import { promisify } from "util";
+import { lettersData } from "../src/content/font/letters.js";
 
 const siteName = "the nest";
 
@@ -123,6 +124,50 @@ async function findContentFiles(dir) {
   return files.flat().filter(Boolean);
 }
 
+async function buildLetterPage(letterData) {
+  const { letter, model, photographer, location, film } = letterData;
+  // console.log(`Building page for letter ${letter}...`);
+
+  // Read base template and other templates
+  const baseTemplate = await readFile("./src/templates/base.html", "utf8");
+  const header = await readFile("./src/templates/header.html", "utf8");
+  const footer = await readFile("./src/templates/footer.html", "utf8");
+
+  // Create the letter-specific content
+  const letterContent = `
+    <div class="letter">
+      <h1>${letter}</h1>
+      <img src="/static/img/font/${letter}.jpg" class="gallery__img" alt="${letter}">
+      <br>
+      <p>
+        Model: ${model} <br>
+        Photo by: ${photographer} <br>
+        Location: ${location} <br>
+        Film: ${film}
+      </p>
+    </div>
+  `;
+
+  // Assemble the page HTML
+  let finalHTML = baseTemplate
+    .replace("{{PAGE_TITLE}}", `Garment Sans - ${letter}`)
+    .replace('<div id="header-container"></div>', header)
+    .replace('<div id="content-container"></div>', letterContent)
+    .replace('<div id="footer-container"></div>', footer);
+
+  finalHTML = minify(finalHTML, {
+    removeComments: true,
+    collapseWhitespace: true,
+    conservativeCollapse: true,
+    minifyJS: true,
+    minifyCSS: true,
+  });
+
+  // Write the page to the dist directory
+  await ensureDir("./dist");
+  await writeFile(`./dist/font/${letter}.html`, finalHTML);
+}
+
 // Main build function
 async function build() {
   try {
@@ -130,6 +175,10 @@ async function build() {
     const contentFiles = await findContentFiles("./src/content");
     for (const file of contentFiles) {
       await buildPage(file);
+    }
+
+    for (const letterData of lettersData) {
+      await buildLetterPage(letterData);
     }
 
     await compileSass();
