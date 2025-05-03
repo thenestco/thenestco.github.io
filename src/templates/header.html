@@ -1,30 +1,23 @@
 <header>
-  <div class="dropdown" id="dropdown">
-    <div class="dropdown-container">
-      <button onclick="toggleDropdown()" class="dropbtn">&#9660;</button>
-      <a href="index.html" class="site-title">the nest</a>
-    </div>
-    <nav class="site-nav">
-      <a href="https://garmentsans.com">garment sans</a>
-      <a href="https://film.garmentsans.com">fi.lm.käch</a>
-    </nav>
-  </div>
+  <a href="index.html" class="site-title">the nest</a>
 
   <button class="hamburger" onclick="toggleMenu()">☰</button>
   <nav class="page-nav">
-    <a href="https://garmentsans.com">Garment Sans</a>
+    <a href="font/index.html">garment sans</a>
     <a
       href="https://thenestco.notion.site/15cd1bf5efea80dcb3a9f80922ef9825?v=15cd1bf5efea8097bf17000ce2bdf85a&pvs=73"
-      >Pottery</a
+      >pottery</a
     >
-    <a href="https://film.garmentsans.com">Film</a>
+    <a href="film/index.html">fi.lm.kach</a>
+    <nav class="sub-page-nav">
+      <a href="film/rates.html">rates</a>
+      <a href="https://filmkach.darkroom.com" target="_blank">prints</a>
+    </nav>
     <!-- <a href="https://tattoo.garmentsans.com">NestTattoo</a> -->
+    <a href="about.html">about</a>
   </nav>
 
   <script>
-    function toggleDropdown() {
-      document.querySelector("#dropdown").classList.toggle("open");
-    }
     function toggleMenu() {
       const header = document.querySelector("header");
       header.classList.toggle("open");
