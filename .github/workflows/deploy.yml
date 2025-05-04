@@ -46,7 +46,7 @@ jobs:
           repository: ${{ github.repository_owner }}/garment-sans
           ref: main
           path: garment-sans
-          token: ${{ secrets.PIGEON_PAT }} # Personal Access Token with repo permissions
+          token: ${{ secrets.GITHUB_TOKEN }} # Personal Access Token with repo permissions
 
       - name: Copy dist content to nest-font repository
         run: |
@@ -62,6 +62,7 @@ jobs:
           cd garment-sans
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          git config --unset-all http.https://github.com/.extraheader
           git add -A
 
           # Get the commit hash from the source repository
