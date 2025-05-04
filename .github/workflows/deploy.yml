@@ -101,11 +101,10 @@ jobs:
           find filmkach -mindepth 1 -maxdepth 1 -not -path "filmkach/.git*" -not -wholename "filmkach/CNAME" -exec rm -rf {} \;
 
           # Copy the dist folder contents to filmkach repository
-          cp -r nest/film/index.html filmkach/
-          mkdir filmkach/film
-          cp -r nest/film/* filmkach/film/
+          # cp -r nest/film/index.html filmkach/
+          # mkdir filmkach/film
+          cp -r nest/film/* filmkach/
           cp -r nest/static filmkach/
-          echo $(ls filmkach/)
       - name: Commit and push changes
         run: |
           cd filmkach
