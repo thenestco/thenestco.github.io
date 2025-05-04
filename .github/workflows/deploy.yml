@@ -51,7 +51,6 @@ jobs:
       - name: Copy dist content to nest-font repository
         run: |
           # Remove everything from garment-sans repository except .git directory
-          echo $(ls garment-sans)
           find garment-sans -mindepth 1 -maxdepth 1 -not -path "garment-sans/.git*" -not -wholename "garment-sans/CNAME" -exec rm -rf {} \;
 
           # Copy the dist folder contents to garment-sans repository
@@ -74,3 +73,4 @@ jobs:
             git commit -m "Update from nest gh-pages (commit: ${SOURCE_COMMIT})"
             git push
             echo "✅ Successfully pushed garment-sans/ content to garment-sans repository"
+          fi
