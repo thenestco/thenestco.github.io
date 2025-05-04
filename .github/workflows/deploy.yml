@@ -55,6 +55,7 @@ jobs:
 
           # Copy the dist folder contents to garment-sans repository
           cp -r nest/font/index.html garment-sans/
+          mkdir garment-sans/font
           cp -r nest/font/* garment-sans/font/
           cp -r nest/static garment-sans/
           echo $(ls garment-sans/)
@@ -101,6 +102,7 @@ jobs:
 
           # Copy the dist folder contents to filmkach repository
           cp -r nest/film/index.html filmkach/
+          mkdir filmkach/film
           cp -r nest/film/* filmkach/film/
           cp -r nest/static filmkach/
           echo $(ls filmkach/)
