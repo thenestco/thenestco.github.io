@@ -48,7 +48,7 @@ jobs:
       - name: Copy dist content to nest-font repository
         run: |
           # Remove everything from garment-sans repository except .git directory
-          find garment-sans -mindepth 1 -not -path "garment-sans/.git*" -delete
+          find garment-sans -mindepth 1 -not -path "garment-sans/.git*" -not -name "CNAME" -delete
 
           # Copy the dist folder contents to garment-sans repository
           cp -r nest/font/* garment-sans/
@@ -61,12 +61,12 @@ jobs:
           git add -A
 
           # Get the commit hash from the source repository
-          SOURCE_COMMIT=$(cd ../nest-home && git rev-parse --short HEAD)
+          SOURCE_COMMIT=$(cd ../nest && git rev-parse --short HEAD)
 
           # Only commit if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update from nest-home gh-pages (commit: ${SOURCE_COMMIT})"
+            git commit -m "Update from nest gh-pages (commit: ${SOURCE_COMMIT})"
             git push
-            echo "✅ Successfully pushed dist/ content to garment-sans repository"
+            echo "✅ Successfully pushed garment-sans/ content to garment-sans repository"
