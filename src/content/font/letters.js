@@ -126,7 +126,7 @@ export const lettersData = [
     film: "fujicolor superia 400",
   },
   {
-    letter: "?",
+    letter: "qmark",
     model: "pigeon + jac",
     photographer: "finch",
     location: "sibley preserve, ca",
@@ -193,6 +193,20 @@ export const lettersData = [
     model: "pigeon",
     photographer: "finch",
     location: "death valley, ca",
+    film: "fujicolor superia 400",
+  },
+  {
+    letter: "dot",
+    model: "pigeon",
+    photographer: "finch",
+    location: "death valley, ca",
+    film: "fujicolor superia 400",
+  },
+  {
+    letter: "!",
+    model: "pigeon + jac",
+    photographer: "finch",
+    location: "sibley preserve, ca",
     film: "fujicolor superia 400",
   },
 ];
