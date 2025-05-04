@@ -57,10 +57,11 @@ jobs:
           cp -r nest/font/* garment-sans/
           cp -r nest/static garment-sans/
           echo $(ls garment-sans/)
-
       - name: Commit and push changes
         run: |
           cd garment-sans
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add -A
 
           # Get the commit hash from the source repository
