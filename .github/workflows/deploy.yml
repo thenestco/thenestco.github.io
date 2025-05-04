@@ -75,3 +75,48 @@ jobs:
             git push
             echo "✅ Successfully pushed garment-sans/ content to garment-sans repository"
           fi
+
+  push-to-film-repo:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    steps:
+      - name: Checkout nest gh-pages branch
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: nest
+      - name: Checkout filmkach repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/filmkach
+          ref: main
+          path: filmkach
+          token: ${{ secrets.TEST_PAT }} # Personal Access Token with repo permissions
+
+      - name: Copy dist content to nest-font repository
+        run: |
+          # Remove everything from filmkach repository except .git directory
+          find filmkach -mindepth 1 -maxdepth 1 -not -path "filmkach/.git*" -not -wholename "filmkach/CNAME" -exec rm -rf {} \;
+
+          # Copy the dist folder contents to filmkach repository
+          cp -r nest/film/* filmkach/
+          cp -r nest/static filmkach/
+          echo $(ls filmkach/)
+      - name: Commit and push changes
+        run: |
+          cd filmkach
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+
+          # Get the commit hash from the source repository
+          SOURCE_COMMIT=$(cd ../nest && git rev-parse --short HEAD)
+
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update from nest gh-pages (commit: ${SOURCE_COMMIT})"
+            git push
+            echo "✅ Successfully pushed filmkach/ content to filmkach repository"
+          fi
