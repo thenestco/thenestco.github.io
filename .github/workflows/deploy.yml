@@ -46,7 +46,7 @@ jobs:
           repository: ${{ github.repository_owner }}/garment-sans
           ref: main
           path: garment-sans
-          token: ${{ secrets.PIGEON_PAT }} # Personal Access Token with repo permissions
+          token: ${{ secrets.TEST_PAT }} # Personal Access Token with repo permissions
 
       - name: Copy dist content to nest-font repository
         run: |
