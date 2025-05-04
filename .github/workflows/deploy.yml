@@ -55,6 +55,7 @@ jobs:
 
           # Copy the dist folder contents to garment-sans repository
           cp -r nest/font/index.html garment-sans/
+          cp -r nest/font/* garment-sans/font/
           cp -r nest/static garment-sans/
           echo $(ls garment-sans/)
       - name: Commit and push changes
@@ -100,6 +101,7 @@ jobs:
 
           # Copy the dist folder contents to filmkach repository
           cp -r nest/film/index.html filmkach/
+          cp -r nest/film/* filmkach/film/
           cp -r nest/static filmkach/
           echo $(ls filmkach/)
       - name: Commit and push changes
