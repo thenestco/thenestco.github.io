@@ -51,9 +51,9 @@ jobs:
           find garment-sans -mindepth 1 -not -path "garment-sans/.git*" -delete
 
           # Copy the dist folder contents to garment-sans repository
-          echo $(ls .)
-          echo $(ls nest)
-          cp -r nest/dist/* garment-sans/
+          cp -r nest/font/* garment-sans/
+          cp -r nest/static garment-sans/
+          echo $(ls garment-sans/)
 
       - name: Commit and push changes
         run: |
