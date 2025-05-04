@@ -14,17 +14,57 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-          
+          node-version: "16"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build site
         run: npm run build
-        
+
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages  # The branch the action should deploy to
-          folder: dist      # The folder the action should deploy
-          clean: true       # Automatically remove deleted files from the deploy branch
+          branch: gh-pages # The branch the action should deploy to
+          folder: dist # The folder the action should deploy
+          clean: true # Automatically remove deleted files from the deploy branc
+
+  push-to-font-repo:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    steps:
+      - name: Checkout nest gh-pages branch
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: nest
+      - name: Checkout garment-sans repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/garment-sans
+          path: garment-sans
+          # token: ${{ secrets.FONT_REPO_PAT }} # Personal Access Token with repo permissions
+
+      - name: Copy dist content to nest-font repository
+        run: |
+          # Remove everything from garment-sans repository except .git directory
+          find garment-sans -mindepth 1 -not -path "garment-sans/.git*" -delete
+
+          # Copy the dist folder contents to garment-sans repository
+          cp -r ./dist/* garment-sans/
+
+      - name: Commit and push changes
+        run: |
+          cd garment-sans
+          git add -A
+
+          # Get the commit hash from the source repository
+          SOURCE_COMMIT=$(cd ../nest-home && git rev-parse --short HEAD)
+
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update from nest-home gh-pages (commit: ${SOURCE_COMMIT})"
+            git push
+            echo "✅ Successfully pushed dist/ content to garment-sans repository"
