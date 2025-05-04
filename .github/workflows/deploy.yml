@@ -48,7 +48,7 @@ jobs:
       - name: Copy dist content to nest-font repository
         run: |
           # Remove everything from garment-sans repository except .git directory
-          find garment-sans -mindepth 1 -not -path "garment-sans/.git*" -not -name "CNAME" -delete
+          find garment-sans -mindepth 1 -not -path "garment-sans/.git*" -not -name "CNAME" -exec rm -rf {} \;
 
           # Copy the dist folder contents to garment-sans repository
           cp -r nest/font/* garment-sans/
