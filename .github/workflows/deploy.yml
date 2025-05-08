@@ -123,3 +123,46 @@ jobs:
             git push
             echo "✅ Successfully pushed filmkach/ content to filmkach repository"
           fi
+  push-to-tattoo-repo:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    steps:
+      - name: Checkout nest gh-pages branch
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: nest
+      - name: Checkout tattoo repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/tattoo
+          ref: main
+          path: tattoo
+          token: ${{ secrets.TEST_PAT }} # Personal Access Token with repo permissions
+
+      - name: Copy dist content to tattoo repository
+        run: |
+          # Remove everything from tattoo repository except .git directory
+          find tattoo -mindepth 1 -maxdepth 1 -not -path "tattoo/.git*" -not -wholename "tattoo/CNAME" -exec rm -rf {} \;
+
+          # Copy the dist folder contents to tattoo repository
+          cp -r nest/tattoo tattoo/
+          cp -r nest/static tattoo/
+      - name: Commit and push changes
+        run: |
+          cd tattoo
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+
+          # Get the commit hash from the source repository
+          SOURCE_COMMIT=$(cd ../nest && git rev-parse --short HEAD)
+
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update from nest gh-pages (commit: ${SOURCE_COMMIT})"
+            git push
+            echo "✅ Successfully pushed tattoo/ content to tattoo repository"
+          fi
