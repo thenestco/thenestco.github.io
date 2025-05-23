@@ -16,6 +16,7 @@ const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
 const copyFile = promisify(fs.copyFile);
 const readdir = promisify(fs.readdir);
+const stat = promisify(fs.stat);
 
 // Ensure dist directory exists
 const ensureDir = async (dir) => {
@@ -31,15 +32,40 @@ async function compileSass() {
   fs.writeFileSync("./dist/static/css/main.css", result.css);
 }
 
+const sourceDir = "src/static/img";
+const destDir = "dist/static/img";
+
+async function getImageFiles(dir) {
+  const subdirs = await readdir(dir);
+  const files = await Promise.all(
+    subdirs.map(async (subdir) => {
+      const res = path.join(dir, subdir);
+      return (await stat(res)).isDirectory() ? getImageFiles(res) : res;
+    })
+  );
+  return files.flat().filter((file) => /\.(jpe?g|png|svg)$/i.test(file));
+}
+
 async function optimizeImages() {
-  await imagemin(["src/static/img/*.{jpg,png,svg}"], {
-    destination: "dist/static/img",
-    plugins: [
-      imageminMozjpeg({ quality: 75 }),
-      imageminPngquant({ quality: [0.6, 0.8] }),
-      imageminSvgo(),
-    ],
-  });
+  const files = await getImageFiles(sourceDir);
+
+  for (const file of files) {
+    const buffer = await fs.promises.readFile(file);
+    const optimized = await imagemin.buffer(buffer, {
+      plugins: [
+        imageminMozjpeg({ quality: 50 }),
+        imageminPngquant({ quality: [0.4, 0.6] }),
+        imageminSvgo(),
+      ],
+    });
+
+    const relativePath = path.relative(sourceDir, file);
+    const destPath = path.join(destDir, relativePath);
+    const destDirPath = path.dirname(destPath);
+
+    await mkdir(destDirPath, { recursive: true });
+    await writeFile(destPath, optimized);
+  }
 }
 
 // Process a page
@@ -182,10 +208,10 @@ async function build() {
     }
 
     await compileSass();
+    // await copyStatic();
     await optimizeImages();
 
     // Copy static assets
-    await copyStatic();
 
     console.log("Build completed successfully!");
   } catch (error) {
