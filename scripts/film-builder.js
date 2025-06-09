@@ -7,6 +7,7 @@ import { imageData, index } from "../src/content/film/film.js";
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
+const copyFile = promisify(fs.copyFile);
 
 const siteName = "the nest";
 
@@ -14,6 +15,23 @@ const siteName = "the nest";
 const ensureDir = async (dir) => {
   if (!fs.existsSync(dir)) {
     await mkdir(dir, { recursive: true });
+  }
+};
+
+const copyDir = async (src, dest) => {
+  await ensureDir(dest);
+
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      await copyDir(srcPath, destPath);
+    } else {
+      await copyFile(srcPath, destPath);
+    }
   }
 };
 
@@ -25,6 +43,8 @@ export async function buildFilmPages() {
   const baseTemplate = await readFile("./src/templates/base.html", "utf8");
   const header = await readFile("./src/templates/header-film.html", "utf8");
   const footer = await readFile("./src/templates/footer.html", "utf8");
+
+  await copyDir("./src/static/img/font", "./dist/static/img/film/garment");
 
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
