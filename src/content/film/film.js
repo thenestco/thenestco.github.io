@@ -62,4 +62,6 @@ export const imageData = {
     "dot.jpg",
     "comma.jpg",
   ],
+  meow: [],
+  laundry: [],
 };
