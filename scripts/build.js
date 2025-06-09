@@ -8,6 +8,7 @@ import imageminPngquant from "imagemin-pngquant";
 import imageminSvgo from "imagemin-svgo";
 import { promisify } from "util";
 import { lettersData } from "../src/content/font/letters.js";
+import { buildFilmPages } from "./film-builder.js";
 
 const siteName = "the nest";
 
@@ -83,7 +84,7 @@ async function buildPage(file) {
 
   // Read page-specific content
   const contentFile = `./src/content/${relative}/${pageName}-content.html`;
-  const pageContent = await readFile(contentFile, "utf8");
+  let pageContent = await readFile(contentFile, "utf8");
 
   // Assemble the page
   let finalHTML = baseTemplate
@@ -206,9 +207,10 @@ async function build() {
     for (const letterData of lettersData) {
       await buildLetterPage(letterData);
     }
+    await buildFilmPages();
 
+    await copyStatic();
     await compileSass();
-    // await copyStatic();
     await optimizeImages();
 
     // Copy static assets

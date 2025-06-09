@@ -1,0 +1,23 @@
+<header>
+  <a href="https://film.garmentsans.com" class="site-title">fi.lm.kach</a>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav class="page-nav">
+    <nav class="sub-page-nav">
+      <a href="./film/flight">flight</a>
+      <a href="./film/eggo">eggo</a>
+      <a href="./film/homo">homo</a>
+    </nav>
+
+    <a href="https://film.garmentsans.com/rates">rates</a>
+    <a href="https://filmkach.darkroom.com" target="_blank">prints</a>
+    <a href="https://nest.garmentsans.com/about">about</a>
+  </nav>
+
+  <script>
+    function toggleMenu() {
+      const header = document.querySelector("header");
+      header.classList.toggle("open");
+    }
+  </script>
+</header>
