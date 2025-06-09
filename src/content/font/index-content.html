@@ -8,67 +8,7 @@
   </p>
 </section>
 
-<section class="gallery" id="gallery">
-  <script>
-    const galleryData = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z",
-      "!",
-      "qmark",
-      "dot",
-      "comma",
-    ];
-
-    const gallery = document.getElementById("gallery");
-
-    galleryData.forEach((letter) => {
-      const altText =
-        letter === "qmark"
-          ? "?"
-          : letter === "dot"
-          ? "."
-          : letter === "comma"
-          ? ","
-          : letter;
-
-      const link = document.createElement("a");
-      link.href = `font/${letter}.html`;
-
-      const img = document.createElement("img");
-      img.src = `static/img/font/${letter}.jpg`;
-      img.alt = altText;
-      img.className = "gallery__img";
-      img.loading = "lazy";
-
-      link.appendChild(img);
-      gallery.appendChild(link);
-    });
-  </script>
-</section>
+<section class="gallery" id="gallery"></section>
 
 <section>
   <h2>About</h2>
@@ -79,3 +19,5 @@
     natural area, ca; sibley preserve, ca; wildcat canyon, ca
   </p>
 </section>
+
+<script src="static/js/font_gallery.js"></script>
