@@ -30,7 +30,7 @@ export const imageData = {
     "pigeon-fern-bits.jpeg",
     "pigeon-fern-nips.jpeg",
   ],
-  font: [
+  garment: [
     "A.jpg",
     "B.jpg",
     "C.jpg",
