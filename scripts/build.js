@@ -36,37 +36,22 @@ async function compileSass() {
 const sourceDir = "src/static/img";
 const destDir = "dist/static/img";
 
-async function getImageFiles(dir) {
-  const subdirs = await readdir(dir);
-  const files = await Promise.all(
-    subdirs.map(async (subdir) => {
-      const res = path.join(dir, subdir);
-      return (await stat(res)).isDirectory() ? getImageFiles(res) : res;
-    })
-  );
-  return files.flat().filter((file) => /\.(jpe?g|png|svg)$/i.test(file));
-}
+async function optimizeImage(file) {
+  const buffer = await fs.promises.readFile(file);
+  const optimized = await imagemin.buffer(buffer, {
+    plugins: [
+      imageminMozjpeg({ quality: 50 }),
+      imageminPngquant({ quality: [0.4, 0.6] }),
+      imageminSvgo(),
+    ],
+  });
 
-async function optimizeImages() {
-  const files = await getImageFiles(sourceDir);
+  const relativePath = path.relative(sourceDir, file);
+  const destPath = path.join(destDir, relativePath);
+  const destDirPath = path.dirname(destPath);
 
-  for (const file of files) {
-    const buffer = await fs.promises.readFile(file);
-    const optimized = await imagemin.buffer(buffer, {
-      plugins: [
-        imageminMozjpeg({ quality: 50 }),
-        imageminPngquant({ quality: [0.4, 0.6] }),
-        imageminSvgo(),
-      ],
-    });
-
-    const relativePath = path.relative(sourceDir, file);
-    const destPath = path.join(destDir, relativePath);
-    const destDirPath = path.dirname(destPath);
-
-    await mkdir(destDirPath, { recursive: true });
-    await writeFile(destPath, optimized);
-  }
+  await mkdir(destDirPath, { recursive: true });
+  await writeFile(destPath, optimized);
 }
 
 // Process a page
@@ -127,7 +112,11 @@ async function copyStatic() {
       if (entry.isDirectory()) {
         await copyDir(srcPath, destPath);
       } else {
-        await copyFile(srcPath, destPath);
+        if (/\.(jpe?g|png|svg)$/i.test(entry.name)) {
+          optimizeImage(srcPath);
+        } else {
+          await copyFile(srcPath, destPath);
+        }
       }
     }
   };
@@ -207,11 +196,10 @@ async function build() {
     for (const letterData of lettersData) {
       await buildLetterPage(letterData);
     }
-    await buildFilmPages();
 
     await copyStatic();
+    await buildFilmPages();
     await compileSass();
-    await optimizeImages();
 
     // Copy static assets
 

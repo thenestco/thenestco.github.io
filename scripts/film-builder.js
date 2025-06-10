@@ -128,7 +128,7 @@ export async function buildFilmPages() {
   const header = await readFile("./src/templates/header-film.html", "utf8");
   const footer = await readFile("./src/templates/footer.html", "utf8");
 
-  await copyDir("./src/static/img/font", "./dist/static/img/film/font");
+  await copyDir("./dist/static/img/font", "./dist/static/img/film/font");
 
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
