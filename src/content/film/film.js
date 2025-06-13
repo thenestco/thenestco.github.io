@@ -15,13 +15,6 @@ export const imageData = {
     "hidden-egg.jpg",
     "egg-bowl.jpg",
   ],
-  flight: [
-    "birds.jpg",
-    "kite.jpg",
-    "seagull.jpg",
-    "birds-light.jpeg",
-    "pigeon.jpg",
-  ],
   homo: [
     "clover-bits.jpeg",
     "finch-fern-bits.jpeg",
@@ -63,5 +56,4 @@ export const imageData = {
     "comma.jpg",
   ],
   meow: [],
-  laundry: [],
 };
