@@ -95,14 +95,13 @@ async function buildPage(file) {
 }
 
 // Copy static assets
-export async function copyStatic() {
+export async function copyStatic(src, dest) {
   console.log("Copying static files...");
   await ensureDir("./dist/static");
 
   // Function to copy a directory recursively
   const copyDir = async (src, dest) => {
     await ensureDir(dest);
-
     const entries = fs.readdirSync(src, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -121,7 +120,7 @@ export async function copyStatic() {
     }
   };
 
-  await copyDir("./src/static", "./dist/static");
+  await copyDir(src, dest);
 }
 
 export async function findContentFiles(dir) {
@@ -197,7 +196,7 @@ async function build() {
       await buildLetterPage(letterData);
     }
     await buildFilmPages();
-    await copyStatic();
+    await copyStatic("./src/static", "./dist/static");
     await compileSass();
 
     // Copy static assets
