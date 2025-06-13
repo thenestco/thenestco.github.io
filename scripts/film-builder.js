@@ -3,6 +3,7 @@ import path from "path";
 import { minify } from "html-minifier";
 import { promisify } from "util";
 import { imageData, index } from "../src/content/film/film.js";
+import { findContentFiles, ensureDir, copyStatic } from "../scripts/build.js";
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -11,30 +12,6 @@ const copyFile = promisify(fs.copyFile);
 const readdir = promisify(fs.readdir);
 
 const siteName = "fi.lm.k&auml;ch";
-
-// Ensure dist directory exists
-const ensureDir = async (dir) => {
-  if (!fs.existsSync(dir)) {
-    await mkdir(dir, { recursive: true });
-  }
-};
-
-const copyDir = async (src, dest) => {
-  await ensureDir(dest);
-
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-
-    if (entry.isDirectory()) {
-      await copyDir(srcPath, destPath);
-    } else {
-      await copyFile(srcPath, destPath);
-    }
-  }
-};
 
 async function scanImageFolder(folderPath) {
   try {
@@ -64,22 +41,6 @@ async function scanImageFolder(folderPath) {
     console.error(`Error scanning image folder ${folderPath}:`, error);
     return [];
   }
-}
-
-async function findContentFiles(dir) {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    entries.map(async (entry) => {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        return findContentFiles(fullPath); // recurse
-      } else if (entry.name.endsWith("-content.html")) {
-        return fullPath;
-      }
-      return null;
-    })
-  );
-  return files.flat().filter(Boolean);
 }
 
 async function buildPage(file) {
@@ -119,6 +80,43 @@ async function buildPage(file) {
   await writeFile(`./dist/${relative}/${pageName}.html`, finalHTML);
 }
 
+function createImagePairs(images) {
+  const pairs = [];
+  const imageMap = new Map();
+
+  // Create a map of images by their base name (digit + letter)
+  images.forEach((imageName) => {
+    const match = imageName.match(/^(\d+)([ab])(.*)/);
+    if (match) {
+      const [, digit, letter, _] = match;
+      if (!imageMap.has(digit)) {
+        imageMap.set(digit, {});
+      }
+      imageMap.get(digit)[letter] = imageName;
+    } else {
+      imageMap.set(imageName, {});
+      imageMap.get(imageName)["a"] = imageName;
+    }
+  });
+
+  // Create pairs, prioritizing 'a' images and pairing with 'b' when available
+  imageMap.forEach((letterMap, digit) => {
+    if (letterMap.a) {
+      pairs.push({
+        primary: letterMap.a,
+        hover: letterMap.b || null,
+      });
+    } else if (letterMap.b) {
+      // If only 'b' exists, show it normally without hover effect
+      pairs.push({
+        primary: letterMap.b,
+        hover: null,
+      });
+    }
+  });
+  return pairs;
+}
+
 // Build film gallery pages
 export async function buildFilmPages() {
   console.log("Building film pages...");
@@ -128,26 +126,38 @@ export async function buildFilmPages() {
   const header = await readFile("./src/templates/header-film.html", "utf8");
   const footer = await readFile("./src/templates/footer.html", "utf8");
 
-  await copyDir("./dist/static/img/font", "./dist/static/img/film/font");
-
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
     var imgs = images;
     if (images.length === 0) {
       imgs = await scanImageFolder(`./src/static/img/film/${collectionName}`);
     }
+    const imagePairs = createImagePairs(imgs);
     const collectionContent = `
       <section class="horizontal-gallery">
       <div class="horizontal-scroll-container">
-          ${imgs
+          ${imagePairs
             .map(
-              (imageName) => `
-            <div class="horizontal-gallery-item">
-              <img src="/static/img/film/${collectionName}/${imageName}" 
-                   class="gallery__img" 
-                   alt="${imageName.replace(/\.(jpg|jpeg|png)$/i, "")}"
+              (pair) => `
+            <div class="horizontal-gallery-item${
+              pair.hover ? " has-hover" : ""
+            }">
+              <img src="/static/img/film/${collectionName}/${pair.primary}" 
+                   class="gallery__img gallery__img--primary" 
+                   alt="${pair.primary.replace(/\.(jpg|jpeg|png)$/i, "")}"
                    loading="lazy">
+              ${
+                pair.hover
+                  ? `
+              <img src="/static/img/film/${collectionName}/${pair.hover}" 
+                   class="gallery__img gallery__img--hover" 
+                   alt="${pair.hover.replace(/\.(jpg|jpeg|png)$/i, "")}"
+                   loading="lazy">
+              `
+                  : ""
+              }
             </div>
+            
           `
             )
             .join("")}

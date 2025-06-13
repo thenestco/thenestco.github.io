@@ -20,7 +20,7 @@ const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
 // Ensure dist directory exists
-const ensureDir = async (dir) => {
+export const ensureDir = async (dir) => {
   if (!fs.existsSync(dir)) {
     await mkdir(dir, { recursive: true });
   }
@@ -95,7 +95,7 @@ async function buildPage(file) {
 }
 
 // Copy static assets
-async function copyStatic() {
+export async function copyStatic() {
   console.log("Copying static files...");
   await ensureDir("./dist/static");
 
@@ -124,7 +124,7 @@ async function copyStatic() {
   await copyDir("./src/static", "./dist/static");
 }
 
-async function findContentFiles(dir) {
+export async function findContentFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = await Promise.all(
     entries.map(async (entry) => {
@@ -196,9 +196,8 @@ async function build() {
     for (const letterData of lettersData) {
       await buildLetterPage(letterData);
     }
-
-    await copyStatic();
     await buildFilmPages();
+    await copyStatic();
     await compileSass();
 
     // Copy static assets
