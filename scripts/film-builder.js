@@ -158,7 +158,63 @@ export async function buildFilmPages() {
                   : ""
               }
             </div>
-            
+            <script>document.addEventListener('DOMContentLoaded', function() {
+  const galleryItems = document.querySelectorAll('.horizontal-gallery-item.has-hover');
+  
+  galleryItems.forEach(item => {
+    let touchStartTime = 0;
+    let isScrolling = false;
+    let scrollContainer;
+    
+    // Find the scroll container
+    scrollContainer = item.closest('.horizontal-scroll-container');
+    
+    // Track scrolling state
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', () => {
+        isScrolling = true;
+        setTimeout(() => {
+          isScrolling = false;
+        }, 150);
+      });
+    }
+    
+    item.addEventListener('touchstart', function(e) {
+      touchStartTime = Date.now();
+      isScrolling = false;
+      
+      // Add touch-active class after a short delay to distinguish from scrolling
+      setTimeout(() => {
+        if (!isScrolling) {
+          item.classList.add('touch-active');
+        }
+      }, 100);
+    });
+    
+    item.addEventListener('touchmove', function(e) {
+      // Check if the touch is still over this element
+      const touch = e.touches[0];
+      const elementFromPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      if (!item.contains(elementFromPoint)) {
+        item.classList.remove('touch-active');
+      }
+    });
+    
+    item.addEventListener('touchend', function(e) {
+      const touchDuration = Date.now() - touchStartTime;
+      
+      // Remove active state after a delay
+      setTimeout(() => {
+        item.classList.remove('touch-active');
+      }, 300);
+    });
+    
+    item.addEventListener('touchcancel', function(e) {
+      item.classList.remove('touch-active');
+    });
+  });
+});</script>
           `
             )
             .join("")}
