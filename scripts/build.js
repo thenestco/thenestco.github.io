@@ -36,7 +36,7 @@ async function compileSass() {
 const sourceDir = "src/static/img";
 const destDir = "dist/static/img";
 
-async function optimizeImage(file) {
+async function optimizeImage(file, destPath) {
   const buffer = await fs.promises.readFile(file);
   const optimized = await imagemin.buffer(buffer, {
     plugins: [
@@ -46,11 +46,11 @@ async function optimizeImage(file) {
     ],
   });
 
-  const relativePath = path.relative(sourceDir, file);
-  const destPath = path.join(destDir, relativePath);
-  const destDirPath = path.dirname(destPath);
+  // const relativePath = path.relative(sourceDir, file);
+  // const destPath = path.join(destDir, relativePath);
+  // const destDirPath = path.dirname(destPath);
 
-  await mkdir(destDirPath, { recursive: true });
+  // await mkdir(destDirPath, { recursive: true });
   await writeFile(destPath, optimized);
 }
 
@@ -112,7 +112,7 @@ export async function copyStatic(src, dest) {
         await copyDir(srcPath, destPath);
       } else {
         if (/\.(jpe?g|png|svg)$/i.test(entry.name)) {
-          optimizeImage(srcPath);
+          optimizeImage(srcPath, destPath);
         } else {
           await copyFile(srcPath, destPath);
         }

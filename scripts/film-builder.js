@@ -7,8 +7,8 @@ import { findContentFiles, ensureDir, copyStatic } from "../scripts/build.js";
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
-const mkdir = promisify(fs.mkdir);
-const copyFile = promisify(fs.copyFile);
+// const mkdir = promisify(fs.mkdir);
+// const copyFile = promisify(fs.copyFile);
 const readdir = promisify(fs.readdir);
 
 const siteName = "fi.lm.k&auml;ch";
