@@ -221,13 +221,21 @@ export async function buildFilmPages() {
         </div>
       </div>
     `;
-
-    let collectionHTML = baseTemplate
-      .replace("{{PAGE_TITLE}}", `${siteName} - ${collectionName}`)
+    if (collectionName === index) {
+      var collectionHTML = baseTemplate.replace(
+        "{{PAGE_TITLE}}",
+        `${siteName}`
+      );
+    } else {
+      var collectionHTML = baseTemplate.replace(
+        "{{PAGE_TITLE}}",
+        `${siteName} - ${collectionName}`
+      );
+    }
+    collectionHTML = collectionHTML
       .replace('<div id="header-container"></div>', header)
       .replace('<div id="content-container"></div>', collectionContent)
       .replace('<div id="footer-container"></div>', footer);
-
     collectionHTML = minify(collectionHTML, {
       removeComments: true,
       collapseWhitespace: true,
