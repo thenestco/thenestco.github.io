@@ -2,13 +2,10 @@ import fs from "fs";
 import path from "path";
 import { minify } from "html-minifier";
 import { promisify } from "util";
-import { imageData, index } from "../src/content/film/film.js";
 import { findContentFiles, ensureDir, copyStatic } from "../scripts/build.js";
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
-// const mkdir = promisify(fs.mkdir);
-// const copyFile = promisify(fs.copyFile);
 const readdir = promisify(fs.readdir);
 
 const siteName = "fi.lm.k&auml;ch";
@@ -41,6 +38,49 @@ async function scanImageFolder(folderPath) {
     console.error(`Error scanning image folder ${folderPath}:`, error);
     return [];
   }
+}
+
+async function scanFilmCollections(basePath, relativePath = "") {
+  const collections = {};
+
+  try {
+    if (!fs.existsSync(basePath)) {
+      console.log(`Film base path does not exist: ${basePath}`);
+      return collections;
+    }
+
+    const entries = await readdir(basePath, { withFileTypes: true });
+
+    // Check if current folder has images
+    const currentFolderImages = await scanImageFolder(basePath);
+    if (currentFolderImages.length > 0) {
+      const collectionName = relativePath || "root";
+      collections[collectionName] = currentFolderImages;
+      console.log(
+        `Found collection: ${collectionName} with ${currentFolderImages.length} images`
+      );
+    }
+
+    // Recursively scan subdirectories
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const subFolderPath = path.join(basePath, entry.name);
+        const subRelativePath = relativePath
+          ? `${relativePath}/${entry.name}`
+          : entry.name;
+
+        const subCollections = await scanFilmCollections(
+          subFolderPath,
+          subRelativePath
+        );
+        Object.assign(collections, subCollections);
+      }
+    }
+  } catch (error) {
+    console.error(`Error scanning film collections from ${basePath}:`, error);
+  }
+
+  return collections;
 }
 
 async function buildPage(file) {
@@ -126,14 +166,22 @@ export async function buildFilmPages() {
   const header = await readFile("./src/templates/header-film.html", "utf8");
   const footer = await readFile("./src/templates/footer.html", "utf8");
 
-  await copyStatic("./src/static/img/font", "./dist/static/img/film/font");
+  await copyStatic(
+    "./src/static/img/font",
+    "./src/static/img/film/albums/font"
+  );
+
+  // Scan for film collections recursively
+  const imageData = await scanFilmCollections("./src/static/img/film");
+
+  // Determine index collection (could be first alphabetically, or you can set a specific one)
+  const collectionNames = Object.keys(imageData).sort();
+  const indexCollection = collectionNames[0]; // Use first collection as index, or modify this logic
+
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
-    var imgs = images;
-    if (images.length === 0) {
-      imgs = await scanImageFolder(`./src/static/img/film/${collectionName}`);
-    }
-    const imagePairs = createImagePairs(imgs);
+
+    const imagePairs = createImagePairs(images);
     const collectionContent = `
       <section class="horizontal-gallery">
       <div class="horizontal-scroll-container">
@@ -221,21 +269,23 @@ export async function buildFilmPages() {
         </div>
       </div>
     `;
-    if (collectionName === index) {
-      var collectionHTML = baseTemplate.replace(
-        "{{PAGE_TITLE}}",
-        `${siteName}`
-      );
+
+    // Set page title based on whether this is the index collection
+    let collectionHTML;
+    if (collectionName === indexCollection) {
+      collectionHTML = baseTemplate.replace("{{PAGE_TITLE}}", `${siteName}`);
     } else {
-      var collectionHTML = baseTemplate.replace(
+      collectionHTML = baseTemplate.replace(
         "{{PAGE_TITLE}}",
         `${siteName} - ${collectionName}`
       );
     }
+
     collectionHTML = collectionHTML
       .replace('<div id="header-container"></div>', header)
       .replace('<div id="content-container"></div>', collectionContent)
       .replace('<div id="footer-container"></div>', footer);
+
     collectionHTML = minify(collectionHTML, {
       removeComments: true,
       collapseWhitespace: true,
@@ -243,12 +293,19 @@ export async function buildFilmPages() {
       minifyJS: true,
       minifyCSS: true,
     });
+
+    // Build content pages
     const contentFiles = await findContentFiles("./src/content/film");
     for (const file of contentFiles) {
       await buildPage(file);
     }
+
+    // Write collection HTML
+    await ensureDir(`./dist/film/${collectionName}`);
     await writeFile(`./dist/film/${collectionName}.html`, collectionHTML);
-    if (collectionName === index) {
+
+    // If this is the index collection, also write it as index.html
+    if (collectionName === indexCollection) {
       await writeFile(`./dist/film/index.html`, collectionHTML);
     }
   }
