@@ -306,7 +306,7 @@ export async function buildFilmPages() {
 
   await copyStatic(
     "./src/static/img/font",
-    "./src/static/img/film/portfolio/font"
+    "./src/static/img/film/collections/font"
   );
 
   // Scan for film collections recursively
