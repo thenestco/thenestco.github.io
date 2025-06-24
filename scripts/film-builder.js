@@ -83,6 +83,76 @@ async function scanFilmCollections(basePath, relativePath = "") {
   return collections;
 }
 
+// Helper function to process header template with active page highlighting
+async function processHeader(currentPage, currentCollection = null) {
+  let header = await readFile("./src/templates/header-film.html", "utf8");
+
+  // Add CSS for active page styling if not already present
+  if (!header.includes("page-active")) {
+    const cssStyle = `
+    <style>
+      .page-active {
+        text-decoration: underline;
+        font-weight: bold;
+      }
+    </style>`;
+    header = cssStyle + header;
+  }
+
+  // Add JavaScript to highlight active page based on current URL/page
+  const activePageScript = `
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPage = '${currentPage || ""}';
+      const currentCollection = '${currentCollection || ""}';
+      
+      // Get current path to determine active links
+      const currentPath = window.location.pathname;
+      
+      // Find and highlight active links
+      const allLinks = document.querySelectorAll('.page-nav a, .sub-page-nav a');
+      
+      allLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        let isActive = false;
+        
+        // Check for exact matches or collection/year/commission matches
+        if (href) {
+          // Handle relative paths
+          const linkPath = href.startsWith('./') ? href.substring(1) : href;
+          
+          // Check if current path matches the link
+          if (currentPath.includes(linkPath.replace('./', '')) || 
+              (currentCollection && linkPath.includes(currentCollection)) ||
+              (currentPage && linkPath.includes(currentPage))) {
+            isActive = true;
+          }
+          
+          // Special case for exact collection matches
+          if (currentCollection && href.includes(currentCollection)) {
+            isActive = true;
+          }
+        }
+        
+        if (isActive) {
+          link.classList.add('page-active');
+        }
+      });
+      
+      // Also check for about page
+      if (currentPage === 'about') {
+        const aboutLink = document.querySelector('a[href="./about"]');
+        if (aboutLink) aboutLink.classList.add('page-active');
+      }
+    });
+  </script>`;
+
+  // Insert the script before the closing </header> tag
+  header = header.replace("</header>", activePageScript + "\n</header>");
+
+  return header;
+}
+
 async function buildPage(file) {
   const pageName = path.basename(file, "-content.html");
   const relative = path.dirname(
@@ -92,7 +162,7 @@ async function buildPage(file) {
 
   // Read template files
   const baseTemplate = await readFile("./src/templates/base.html", "utf8");
-  const header = await readFile("./src/templates/header-film.html", "utf8");
+  const header = await processHeader(pageName); // Pass current page name
   const footer = await readFile("./src/templates/footer.html", "utf8");
 
   // Read page-specific content
@@ -157,31 +227,117 @@ function createImagePairs(images) {
   return pairs;
 }
 
+async function buildFilmIndex(imageData) {
+  const baseTemplate = await readFile("./src/templates/base.html", "utf8");
+  const header = await processHeader("index", null); // Film index page
+  const footer = await readFile("./src/templates/footer.html", "utf8");
+
+  const filePaths = Object.entries(imageData).flatMap(([key, values]) =>
+    values.map((value) => `"/static/img/film/${key}/${value}"`)
+  );
+
+  const collectionContent = `
+  <section class="horizontal-gallery">
+  <div class="horizontal-scroll-container">
+    <div class="horizontal-gallery-item">
+      <img
+        id="randomImage"
+        src=""
+        class="gallery__img gallery__img--primary"
+        alt="Random Image"
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<script>
+  const images = [${filePaths}];
+  let currentImageIndex = -1;
+
+          function loadRandomImage() {
+          let i = document.querySelector(".horizontal-scroll-container"),
+            t = document.getElementById("randomImage");
+          i.classList.add("loading");
+          let s;
+          for (
+            ;
+            (s = Math.floor(Math.random() * images.length)) ===
+              currentImageIndex && 1 < images.length;
+
+          );
+          currentImageIndex = s;
+          let g = images[s];
+          setTimeout(() => {
+            (t.src = g), (t.alt = g), i.classList.remove("loading");
+          }, 300);
+        }
+        window.addEventListener("load", loadRandomImage),
+          document.addEventListener("keydown", function (i) {
+            "Space" === i.code && (i.preventDefault(), loadRandomImage());
+          });
+      </script>
+`;
+  let collectionHTML;
+  collectionHTML = baseTemplate.replace("{{PAGE_TITLE}}", `${siteName}`);
+
+  collectionHTML = collectionHTML
+    .replace('<div id="header-container"></div>', header)
+    .replace('<div id="content-container"></div>', collectionContent)
+    .replace('<div id="footer-container"></div>', footer);
+
+  collectionHTML = minify(collectionHTML, {
+    removeComments: true,
+    collapseWhitespace: true,
+    conservativeCollapse: true,
+    minifyJS: true,
+    minifyCSS: true,
+  });
+  await writeFile(`./dist/film/index.html`, collectionHTML);
+}
+
 // Build film gallery pages
 export async function buildFilmPages() {
   console.log("Building film pages...");
 
   // Read base template and other templates
   const baseTemplate = await readFile("./src/templates/base.html", "utf8");
-  const header = await readFile("./src/templates/header-film.html", "utf8");
   const footer = await readFile("./src/templates/footer.html", "utf8");
 
   await copyStatic(
     "./src/static/img/font",
-    "./src/static/img/film/albums/font"
+    "./src/static/img/film/portfolio/font"
   );
 
   // Scan for film collections recursively
   const imageData = await scanFilmCollections("./src/static/img/film");
 
-  // Determine index collection (could be first alphabetically, or you can set a specific one)
-  const collectionNames = Object.keys(imageData).sort();
-  const indexCollection = collectionNames[0]; // Use first collection as index, or modify this logic
-
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
 
     const imagePairs = createImagePairs(images);
+
+    // Determine the type and name for active page highlighting
+    let pageType = null;
+    let pageName = collectionName;
+
+    // Check if it's a year (chronicles)
+    if (/^\d{4}$/.test(collectionName)) {
+      pageType = "years";
+    }
+    // Check if it's a known collection
+    else if (
+      ["font", "egg", "homo", "startend", "meow"].includes(collectionName)
+    ) {
+      pageType = "collections";
+    }
+    // Check if it's a commission
+    else if (["ropes", "slip", "tattoo", "agdw"].includes(collectionName)) {
+      pageType = "commissions";
+    }
+
+    const header = await processHeader(pageType, collectionName);
+
     const collectionContent = `
       <section class="horizontal-gallery">
       <div class="horizontal-scroll-container">
@@ -269,17 +425,11 @@ export async function buildFilmPages() {
         </div>
       </div>
     `;
-
-    // Set page title based on whether this is the index collection
     let collectionHTML;
-    if (collectionName === indexCollection) {
-      collectionHTML = baseTemplate.replace("{{PAGE_TITLE}}", `${siteName}`);
-    } else {
-      collectionHTML = baseTemplate.replace(
-        "{{PAGE_TITLE}}",
-        `${siteName} - ${collectionName}`
-      );
-    }
+    collectionHTML = baseTemplate.replace(
+      "{{PAGE_TITLE}}",
+      `${siteName} - ${collectionName}`
+    );
 
     collectionHTML = collectionHTML
       .replace('<div id="header-container"></div>', header)
@@ -303,10 +453,6 @@ export async function buildFilmPages() {
     // Write collection HTML
     await ensureDir(`./dist/film/${collectionName}`);
     await writeFile(`./dist/film/${collectionName}.html`, collectionHTML);
-
-    // If this is the index collection, also write it as index.html
-    if (collectionName === indexCollection) {
-      await writeFile(`./dist/film/index.html`, collectionHTML);
-    }
   }
+  buildFilmIndex(imageData);
 }
