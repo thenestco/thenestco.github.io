@@ -306,12 +306,13 @@ export async function buildFilmPages() {
 
   await copyStatic(
     "./src/static/img/font",
-    "./src/static/img/film/collections/font"
+    "./dist/static/img/film/collections/font"
   );
 
   // Scan for film collections recursively
-  const imageData = await scanFilmCollections("./src/static/img/film");
-
+  var imageData = await scanFilmCollections("./src/static/img/film");
+  const imageData2 = await scanFilmCollections("./src/static/img/font");
+  imageData = Object.assign({}, imageData, imageData2);
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
 
