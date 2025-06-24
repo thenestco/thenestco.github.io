@@ -299,15 +299,14 @@ async function buildFilmIndex(imageData) {
 // Build film gallery pages
 export async function buildFilmPages() {
   console.log("Building film pages...");
-
-  // Read base template and other templates
-  const baseTemplate = await readFile("./src/templates/base.html", "utf8");
-  const footer = await readFile("./src/templates/footer.html", "utf8");
-
   await copyStatic(
     "./src/static/img/font",
     "./dist/static/img/film/collections/font"
   );
+
+  // Read base template and other templates
+  const baseTemplate = await readFile("./src/templates/base.html", "utf8");
+  const footer = await readFile("./src/templates/footer.html", "utf8");
 
   // Scan for film collections recursively
   var imageData = await scanFilmCollections("./src/static/img/film");
@@ -315,8 +314,9 @@ export async function buildFilmPages() {
     "./dist/static/img/film/collections/font",
     "collections/font"
   );
-  console.log(imageData);
+
   imageData = Object.assign({}, imageData, imageData2);
+  console.log(imageData);
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
 
@@ -325,21 +325,6 @@ export async function buildFilmPages() {
     // Determine the type and name for active page highlighting
     let pageType = null;
     let pageName = collectionName;
-
-    // // Check if it's a year (chronicles)
-    // if (/^\d{4}$/.test(collectionName)) {
-    //   pageType = "years";
-    // }
-    // // Check if it's a known collection
-    // else if (
-    //   ["font", "egg", "homo", "startend", "meow"].includes(collectionName)
-    // ) {
-    //   pageType = "collections";
-    // }
-    // // Check if it's a commission
-    // else if (["ropes", "slip", "tattoo", "agdw"].includes(collectionName)) {
-    //   pageType = "commissions";
-    // }
 
     const header = await processHeader(pageType, collectionName);
 
