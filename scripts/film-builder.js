@@ -311,7 +311,9 @@ export async function buildFilmPages() {
 
   // Scan for film collections recursively
   var imageData = await scanFilmCollections("./src/static/img/film");
-  const imageData2 = await scanFilmCollections("./src/static/img/font");
+  const imageData2 = await scanFilmCollections(
+    "./dist/static/img/film/collections/font"
+  );
   imageData = Object.assign({}, imageData, imageData2);
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
@@ -322,20 +324,20 @@ export async function buildFilmPages() {
     let pageType = null;
     let pageName = collectionName;
 
-    // Check if it's a year (chronicles)
-    if (/^\d{4}$/.test(collectionName)) {
-      pageType = "years";
-    }
-    // Check if it's a known collection
-    else if (
-      ["font", "egg", "homo", "startend", "meow"].includes(collectionName)
-    ) {
-      pageType = "collections";
-    }
-    // Check if it's a commission
-    else if (["ropes", "slip", "tattoo", "agdw"].includes(collectionName)) {
-      pageType = "commissions";
-    }
+    // // Check if it's a year (chronicles)
+    // if (/^\d{4}$/.test(collectionName)) {
+    //   pageType = "years";
+    // }
+    // // Check if it's a known collection
+    // else if (
+    //   ["font", "egg", "homo", "startend", "meow"].includes(collectionName)
+    // ) {
+    //   pageType = "collections";
+    // }
+    // // Check if it's a commission
+    // else if (["ropes", "slip", "tattoo", "agdw"].includes(collectionName)) {
+    //   pageType = "commissions";
+    // }
 
     const header = await processHeader(pageType, collectionName);
 
