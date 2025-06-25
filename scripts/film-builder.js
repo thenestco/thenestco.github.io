@@ -345,7 +345,7 @@ export async function buildFilmPages() {
   };
 
   const imageData = Object.assign({}, imageData1, imageData2);
-  console.log(imageData);
+
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);
 

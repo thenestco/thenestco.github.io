@@ -203,7 +203,7 @@ async function build() {
       await buildLetterPage(letterData);
     }
     await buildFilmPages();
-    // await copyStatic("./src/static", "./dist/static");
+    await copyStatic("./src/static", "./dist/static");
     await compileSass();
 
     // Copy static assets
