@@ -299,23 +299,52 @@ async function buildFilmIndex(imageData) {
 // Build film gallery pages
 export async function buildFilmPages() {
   console.log("Building film pages...");
-  await copyStatic(
-    "./src/static/img/font",
-    "./dist/static/img/film/collections/font"
-  );
 
   // Read base template and other templates
   const baseTemplate = await readFile("./src/templates/base.html", "utf8");
   const footer = await readFile("./src/templates/footer.html", "utf8");
-
-  // Scan for film collections recursively
-  var imageData = await scanFilmCollections("./src/static/img/film");
-  const imageData2 = await scanFilmCollections(
-    "./dist/static/img/film/collections/font",
-    "collections/font"
+  await copyStatic(
+    "./src/static/img/font",
+    "./dist/static/img/film/collections/font"
   );
+  // Scan for film collections recursively
+  const imageData1 = await scanFilmCollections("./src/static/img/film");
+  const imageData2 = {
+    "collections/font": [
+      "A.jpg",
+      "B.jpg",
+      "C.jpg",
+      "D.jpg",
+      "E.jpg",
+      "F.jpg",
+      "G.jpg",
+      "H.jpg",
+      "I.jpg",
+      "J.jpg",
+      "K.jpg",
+      "L.jpg",
+      "M.jpg",
+      "N.jpg",
+      "O.jpg",
+      "P.jpg",
+      "Q.jpg",
+      "R.jpg",
+      "S.jpg",
+      "T.jpg",
+      "U.jpg",
+      "V.jpg",
+      "W.jpg",
+      "X.jpg",
+      "Y.jpg",
+      "Z.jpg",
+      "comma.jpg",
+      "dot.jpg",
+      "!.jpg",
+      "qmark.jpg",
+    ],
+  };
 
-  imageData = Object.assign({}, imageData, imageData2);
+  const imageData = Object.assign({}, imageData1, imageData2);
   console.log(imageData);
   for (const [collectionName, images] of Object.entries(imageData)) {
     console.log(`Building film collection: ${collectionName}...`);

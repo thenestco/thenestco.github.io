@@ -142,7 +142,14 @@ export async function findContentFiles(dir) {
 async function buildLetterPage(letterData) {
   const { letter, model, photographer, location, film } = letterData;
   // console.log(`Building page for letter ${letter}...`);
-
+  const altText =
+    letter === "qmark"
+      ? "?"
+      : letter === "dot"
+      ? "."
+      : letter === "comma"
+      ? ","
+      : letter;
   // Read base template and other templates
   const baseTemplate = await readFile("./src/templates/base.html", "utf8");
   const header = await readFile("./src/templates/header.html", "utf8");
@@ -151,8 +158,8 @@ async function buildLetterPage(letterData) {
   // Create the letter-specific content
   const letterContent = `
     <div class="letter">
-      <h1>${letter}</h1>
-      <img src="/static/img/font/${letter}.jpg" class="gallery__img" alt="${letter}">
+      <h1>${altText}</h1>
+      <img src="/static/img/font/${letter}.jpg" class="gallery__img" alt="${altText}">
       <br>
       <p>
         Model: ${model} <br>
@@ -196,7 +203,7 @@ async function build() {
       await buildLetterPage(letterData);
     }
     await buildFilmPages();
-    await copyStatic("./src/static", "./dist/static");
+    // await copyStatic("./src/static", "./dist/static");
     await compileSass();
 
     // Copy static assets
