@@ -239,7 +239,7 @@ async function buildFilmIndex(imageData) {
   const collectionContent = `
   <section class="horizontal-gallery">
   <div class="horizontal-scroll-container">
-    <div class="horizontal-gallery-item">
+    <div class="horizontal-gallery-item" style="display: block;margin-left: auto;margin-right: auto;">
       <img
         id="randomImage"
         src=""
